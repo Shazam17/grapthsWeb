@@ -39,8 +39,16 @@ class AdjecencyList {
     this.list.push(new ListItem(node));
   }
 
-  findNode(x ,y){
+  distPoints(x1 , y1 , x2 , y2){
+      return Math.sqrt( (x2 - x1) * (x2 - x1)  + (y2 - y1) * (y2 - y1));
+  }
 
+  findNode(x ,y){
+      this.list.forEach((elem) =>{
+          if(this.distPoints(x , y , elem.node.x , elem.node.y) < 50){
+            console.log(`find point with value ${elem.node.value}`);
+          }
+      });
   }
 }
 class App extends Component {
@@ -58,11 +66,11 @@ class App extends Component {
 
     document.addEventListener('mousedown',(event)=>{
       if(event.which === 3){
-        this.list.addNode(new Node({X:event.clientX , Y:event.clientY}));
+        this.list.addNode(new Node({X:event.clientX , Y:event.clientY }));
       }
 
       if(event.which === 1){
-       this.list.findNode(event.clientX , event.clientY);
+       this.list.findNode(event.clientX  , event.clientY );
       }
       this.setState(()=>{
         console.log("update");
@@ -73,6 +81,10 @@ class App extends Component {
 
   }
   
+  renderLines(){
+
+  }
+
   renderNodes(){
     console.log(this.list.list);
     return this.list.list.map(elem => (<div style={{
@@ -84,12 +96,30 @@ class App extends Component {
     }}>0</div>));
   }
 
+
+  updateCanvas(){
+    console.log("updateCanvas");
+    if(this.list.list.length != 0){
+      const ctx = this.refs.canvas.getContext('2d');
+      ctx.canvas.width  = window.innerWidth;
+      ctx.canvas.height = window.innerHeight;
+      ctx.clearRect(0, 0,  this.refs.canvas.width,  this.refs.canvas.height);
+      this.list.list.map( elem => {
+        ctx.beginPath();
+        ctx.arc(elem.node.x, elem.node.y, 50, 0, 2 * Math.PI, false);
+        ctx.fillStyle = 'green';
+        ctx.fill();
+      });
+    }
+   
+  }
+
   render(){
-    let nodes = this.renderNodes();
-    return(
-      <div><button>clear</button>{nodes}</div>
+    this.updateCanvas();
+     return (
+    <canvas ref="canvas"></canvas>
     );
-  } 
+  }
 }
 
 export default App;
